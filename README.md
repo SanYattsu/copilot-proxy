@@ -6,6 +6,7 @@ This Ansible playbook automates the deployment of a proxy server using 3proxy an
 
 1. Ansible installed on your local machine.
 2. SSH access to the target VPS.
+3. Linux distribution - **Ubuntu** or you need to manually update docker installation vars.
 
 ## Configuration
 
@@ -43,8 +44,8 @@ curl --socks5-hostname ${ansible_host}$:${socks_external_port} -U ${PROXY_LOGIN}
 ## Add the proxy to Visual Studio Code
 
 1. Open VS Code.
-2. Navigate to `File > Preferences > Settings` (or use the shortcut Ctrl+,).
-3. In the Settings search bar, type "proxy".
+2. Navigate to `File > Preferences > Settings` (or use the shortcut `Ctrl+,`).
+3. In the Settings search bar, type **proxy**.
 4. Locate the `Application > Proxy` section.
 5. Open `setting.json` and edit proxy setting. Replace env vars with actual params.
 
