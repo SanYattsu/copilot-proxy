@@ -1,0 +1,16 @@
+---
+# Defaults for 3proxy
+allowed_network: "1.2.3.0/21"
+socks_external_port: 1088
+docker_apt_key_url: "https://download.docker.com/linux/ubuntu/gpg"
+docker_apt_repository: >-
+  deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc]
+  https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+
+# Docker compose configuration
+image_tag: "1"
+proxy_port: 3128
+socks_port: 1080
+max_connections: 100
+primary_resolver: "77.88.8.8"
+secondary_resolver: "8.8.8.8"

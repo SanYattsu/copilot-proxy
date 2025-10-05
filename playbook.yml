@@ -1,0 +1,6 @@
+---
+- name: Deploy Proxy Server
+  hosts: "proxy"
+  become: True
+  roles:
+    - proxy

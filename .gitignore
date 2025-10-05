@@ -1,0 +1,12 @@
+*_
+.vscode
+.idea
+.DS_Store
+/.idea/
+/.vscode/
+
+# Temporary files
+.tmp
+
+# Ansible keyfile
+.vault

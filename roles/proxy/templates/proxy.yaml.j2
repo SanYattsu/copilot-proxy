@@ -1,0 +1,22 @@
+name: proxy
+
+services:
+  3proxy:
+    image: ghcr.io/tarampampam/3proxy:{{ image_tag }}
+    restart: unless-stopped
+    environment:
+      PROXY_LOGIN: ${PROXY_LOGIN}
+      PROXY_PASSWORD: ${PROXY_PASSWORD}
+      MAX_CONNECTIONS: {{ max_connections }}
+      PROXY_PORT: {{ proxy_port }}
+      SOCKS_PORT: {{ socks_port }}
+      PRIMARY_RESOLVER: {{ primary_resolver }}
+      SECONDARY_RESOLVER: {{ secondary_resolver }}
+    ports:
+      - "{{ socks_external_port }}:{{ socks_port }}/tcp"
+      - "{{ socks_external_port }}:{{ socks_port }}/udp"
+    networks:
+      tarampampam-network:
+
+networks:
+  tarampampam-network:
