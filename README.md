@@ -19,6 +19,11 @@ This Ansible playbook automates the deployment of a proxy server using 3proxy an
 2. Edit `roles/proxy/files/.env` to set your credentials and encrypt them:
 
    ```bash
+   PROXY_LOGIN: username
+   PROXY_PASSWORD: password
+   ```
+
+   ```bash
    ansible-vault encrypt roles/proxy/files/.env
    ```
 
@@ -49,10 +54,40 @@ curl --socks5-hostname ${ansible_host}$:${socks_external_port} -U ${PROXY_LOGIN}
 4. Locate the `Application > Proxy` section.
 5. Open `setting.json` and edit proxy setting. Replace env vars with actual params.
 
+> `http.noProxy` used for VSC hosts that use proxy but ignore proxy authorization and generates errors.  
+> `http.proxyStrictSSL` can be disabled by setting it to **false** if the proxy server is not running.
+
 ```json
 {
     "http.proxy": "socks5://${PROXY_LOGIN}:${PROXY_PASSWORD}@${ansible_host}$:${socks_external_port}",
     "http.proxyAuthorization": null,
-    "http.proxyStrictSSL": false,
+    "http.proxyStrictSSL": true,
+    "http.proxySupport": "fallback",
+    "http.noProxy": [
+        "avatars.githubusercontent.com",
+        "default.exp-tas.com",
+        "education.github.com",
+        "img.shields.io",
+        "main.vscode-cdn.net",
+        "marketplace.visualstudio.com",
+        "mechatroner.gallery.vsassets.io",
+        "mechatroner.gallerycdn.vsassets.io",
+        "mobile.events.data.microsoft.com",
+        "update.code.visualstudio.com",
+        "www.gravatar.com",
+        "www.vscode-unpkg.net"
+    ]
 }
+```
+
+## Debug
+
+Code below helps debugging 3proxy and show [error code](https://kraken-proxy.ru/en/page/kodyi-oshibok-v-logah-3proxy) for failed connection attempts.
+
+```bash
+docker logs proxy-3proxy-1 --since 1800s | grep -v "00000" \
+   | jq -c '(.time_unix | tonumber | strftime("%H:%M:%S")) + " - " + .request.hostname + " - " + .error.code'
+
+docker logs proxy-3proxy-1 --since 1800s | grep -v "00000" \
+   | jq -c '.request.hostname + " - " + .error.code' | sort -u
 ```

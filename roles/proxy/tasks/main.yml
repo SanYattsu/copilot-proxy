@@ -50,8 +50,6 @@
     source: "{{ item.source | default(omit) }}"
     destination_port: "{{ item.dport | default(omit) }}"
     ctstate: "{{ item.ctstate | default(omit) }}"
-    ctorigdst: "{{ item.ctorigdst | default(omit) }}"
-    ctorigdstport: "{{ item.ctorigdstport | default(omit) }}"
     jump: "{{ item.jump }}"
   loop:
     - { chain: "INPUT", protocol: "tcp", dport: "22", source: "{{ allowed_network }}", jump: "ACCEPT" }
@@ -60,7 +58,7 @@
     - { chain: "INPUT", protocol: "tcp", dport: "22", jump: "DROP" }
     - { chain: "INPUT", protocol: "tcp", dport: "{{ socks_external_port }}", jump: "DROP" }
     - { chain: "INPUT", protocol: "udp", dport: "{{ socks_external_port }}", jump: "DROP" }
-  notify: Save iptables rules
+    - { chain: "DOCKER-USER", protocol: "tcp", dport: "{{ socks_external_port }}", ctstate: "ESTABLISHED,RELATED", jump: "ACCEPT" }
 
 - name: Create service user
   become: true
@@ -68,7 +66,7 @@
     name: proxy
     create_home: false
     shell: /sbin/nologin
-    groups: [ docker ]
+    groups: [docker]
 
 - name: Create proxy directory
   ansible.builtin.file:
@@ -90,7 +88,7 @@
   ansible.builtin.copy:
     src: .env
     dest: /opt/proxy/.env
-    mode: '0600' 
+    mode: "0600"
     owner: proxy
     group: proxy
 
@@ -111,5 +109,6 @@
     - { regexp: "^#?LoginGraceTime.*", line: "LoginGraceTime 0" }
     - { regexp: "^#?PasswordAuthentication.*", line: "PasswordAuthentication no" }
   notify:
-   - Restart SSH
-   - Reboot a machine
+    - Save iptables rules
+    - Restart SSH
+    - Reboot a machine
