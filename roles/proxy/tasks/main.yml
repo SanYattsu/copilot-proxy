@@ -51,14 +51,14 @@
     destination_port: "{{ item.dport | default(omit) }}"
     ctstate: "{{ item.ctstate | default(omit) }}"
     jump: "{{ item.jump }}"
+    action: "{{ item.action | default(omit) }}"
   loop:
     - { chain: "INPUT", protocol: "tcp", dport: "22", source: "{{ allowed_network }}", jump: "ACCEPT" }
-    - { chain: "INPUT", protocol: "tcp", dport: "{{ socks_external_port }}", source: "{{ allowed_network }}", jump: "ACCEPT" }
-    - { chain: "INPUT", protocol: "udp", dport: "{{ socks_external_port }}", source: "{{ allowed_network }}", jump: "ACCEPT" }
     - { chain: "INPUT", protocol: "tcp", dport: "22", jump: "DROP" }
-    - { chain: "INPUT", protocol: "tcp", dport: "{{ socks_external_port }}", jump: "DROP" }
-    - { chain: "INPUT", protocol: "udp", dport: "{{ socks_external_port }}", jump: "DROP" }
-    - { chain: "DOCKER-USER", protocol: "tcp", dport: "{{ socks_external_port }}", ctstate: "ESTABLISHED,RELATED", jump: "ACCEPT" }
+    - { chain: "DOCKER-USER", protocol: "tcp", dport: "{{ socks_port }}", jump: "DROP", action: "insert" }
+    - { chain: "DOCKER-USER", protocol: "udp", dport: "{{ socks_port }}", jump: "DROP", action: "insert" }
+    - { chain: "DOCKER-USER", protocol: "tcp", dport: "{{ socks_port }}", source: "{{ allowed_network }}", jump: "ACCEPT", action: "insert" }
+    - { chain: "DOCKER-USER", protocol: "udp", dport: "{{ socks_port }}", source: "{{ allowed_network }}", jump: "ACCEPT", action: "insert" }
 
 - name: Create service user
   become: true
