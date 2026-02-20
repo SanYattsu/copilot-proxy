@@ -20,16 +20,24 @@
     size: 2048
     mode: "0600"
 
+- name: Generate CA CSR
+  community.crypto.openssl_csr:
+    path: "{{ panel_certs_dir }}/ca_root.csr"
+    privatekey_path: "{{ panel_certs_dir }}/ca_root.key"
+    country_name: EN
+    organization_name: Nobody
+    common_name: Nobody
+    basic_constraints:
+      - "CA:TRUE"
+    basic_constraints_critical: true
+
 - name: Generate CA certificate
   community.crypto.x509_certificate:
     path: "{{ panel_certs_dir }}/ca_root.crt"
+    csr_path: "{{ panel_certs_dir }}/ca_root.csr"
     privatekey_path: "{{ panel_certs_dir }}/ca_root.key"
     provider: selfsigned
     selfsigned_not_after: "+3650d"
-    subject:
-      C: EN
-      O: Nobody
-      CN: Nobody
 
 - name: Generate panel private key
   community.crypto.openssl_privatekey:
@@ -41,10 +49,9 @@
   community.crypto.openssl_csr:
     path: "{{ panel_certs_dir }}/panel.csr"
     privatekey_path: "{{ panel_certs_dir }}/panel.key"
-    subject:
-      C: EN
-      O: Nobody
-      CN: Nobody
+    country_name: EN
+    organization_name: Nobody
+    common_name: Nobody
 
 - name: Sign panel certificate with CA
   community.crypto.x509_certificate:

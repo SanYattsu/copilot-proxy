@@ -22,7 +22,7 @@ services:
       - NET_ADMIN
     read_only: false
     ports:
-      - {{ panel_http_port }}:80
+      - {{ panel_http_port }}:2053
       - {{ panel_xray_port }}:{{ panel_xray_port }}
     secrets:
       - source: panel.crt

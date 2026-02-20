@@ -1,7 +1,10 @@
 ---
+allowed_network: "79.98.8.0/21"
+
+# Panel configuration
 panel_db_dir: /opt/panel/db
 panel_certs_dir: /opt/panel/certs
-panel_http_port: 80
-panel_xray_port: 15432
+panel_http_port: 8443
+panel_xray_port: 9443
 panel_tz: "UTC"
 panel_image: "ghcr.io/mhsanaei/3x-ui:latest"
