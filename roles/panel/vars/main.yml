@@ -1,0 +1,7 @@
+---
+panel_db_dir: /opt/panel/db
+panel_certs_dir: /opt/panel/certs
+panel_http_port: 80
+panel_xray_port: 15432
+panel_tz: "UTC"
+panel_image: "ghcr.io/mhsanaei/3x-ui:latest"

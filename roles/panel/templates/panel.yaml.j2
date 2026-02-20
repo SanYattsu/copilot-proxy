@@ -1,0 +1,43 @@
+name: panel
+
+services:
+  3x-ui:
+    image: {{ panel_image }}
+    container_name: 3x-ui
+    volumes:
+      - {{ panel_db_dir }}:/etc/x-ui/
+    environment:
+      TZ: "{{ panel_tz }}"
+      XRAY_VMESS_AEAD_FORCED: "false"
+      XUI_ENABLE_FAIL2BAN: "true"
+      XUI_LOG_LEVEL: warning
+    tty: true
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+      - NET_ADMIN
+    read_only: false
+    ports:
+      - {{ panel_http_port }}:80
+      - {{ panel_xray_port }}:{{ panel_xray_port }}
+    secrets:
+      - source: panel.crt
+        target: /root/cert/panel.crt
+      - source: panel.key
+        target: /root/cert/panel.key
+        mode: 0600
+    networks:
+      - panel-network
+
+networks:
+  panel-network:
+
+secrets:
+  panel.crt:
+    file: {{ panel_certs_dir }}/panel.crt
+  panel.key:
+    file: {{ panel_certs_dir }}/panel.key

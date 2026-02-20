@@ -1,0 +1,84 @@
+---
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    upgrade: "full"
+    state: "latest"
+
+- name: Create panel directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ panel_db_dir }}"
+    - "{{ panel_certs_dir }}"
+
+- name: Generate CA private key
+  community.crypto.openssl_privatekey:
+    path: "{{ panel_certs_dir }}/ca_root.key"
+    size: 2048
+    mode: "0600"
+
+- name: Generate CA certificate
+  community.crypto.x509_certificate:
+    path: "{{ panel_certs_dir }}/ca_root.crt"
+    privatekey_path: "{{ panel_certs_dir }}/ca_root.key"
+    provider: selfsigned
+    selfsigned_not_after: "+3650d"
+    subject:
+      C: EN
+      O: Nobody
+      CN: Nobody
+
+- name: Generate panel private key
+  community.crypto.openssl_privatekey:
+    path: "{{ panel_certs_dir }}/panel.key"
+    size: 2048
+    mode: "0600"
+
+- name: Generate panel CSR
+  community.crypto.openssl_csr:
+    path: "{{ panel_certs_dir }}/panel.csr"
+    privatekey_path: "{{ panel_certs_dir }}/panel.key"
+    subject:
+      C: EN
+      O: Nobody
+      CN: Nobody
+
+- name: Sign panel certificate with CA
+  community.crypto.x509_certificate:
+    path: "{{ panel_certs_dir }}/panel.crt"
+    csr_path: "{{ panel_certs_dir }}/panel.csr"
+    privatekey_path: "{{ panel_certs_dir }}/panel.key"
+    ownca_path: "{{ panel_certs_dir }}/ca_root.crt"
+    ownca_privatekey_path: "{{ panel_certs_dir }}/ca_root.key"
+    ownca_not_after: "+3650d"
+    provider: ownca
+
+- name: Configure iptables rules for panel ports
+  ansible.builtin.iptables:
+    chain: "{{ item.chain }}"
+    protocol: tcp
+    source: "{{ item.source | default(omit) }}"
+    destination_port: "{{ item.dport }}"
+    jump: "{{ item.jump }}"
+    action: "{{ item.action | default(omit) }}"
+  loop:
+    - { chain: "DOCKER-USER", dport: "{{ panel_http_port }}", jump: "DROP", action: "insert" }
+    - { chain: "DOCKER-USER", dport: "{{ panel_xray_port }}", jump: "DROP", action: "insert" }
+    - { chain: "DOCKER-USER", dport: "{{ panel_http_port }}", source: "{{ allowed_network }}", jump: "ACCEPT", action: "insert" }
+    - { chain: "DOCKER-USER", dport: "{{ panel_xray_port }}", source: "{{ allowed_network }}", jump: "ACCEPT", action: "insert" }
+  notify: Save iptables rules
+
+- name: Copy panel docker-compose file
+  ansible.builtin.template:
+    src: panel.yaml.j2
+    dest: /opt/panel/panel.yaml
+    mode: "0644"
+
+- name: Start panel service
+  community.docker.docker_compose_v2:
+    project_src: /opt/panel
+    files:
+      - panel.yaml
