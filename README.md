@@ -43,7 +43,7 @@ This Ansible playbook automates the deployment of a proxy server using **3proxy*
 Run the playbook:
 
    ```bash
-   ansible-playbook playbook.yml
+   ansible-playbook playbook.yml --extra-vars "vps_ip=1.2.3.4"
    ```
 
 ## Accessing the Proxy
