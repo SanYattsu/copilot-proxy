@@ -1,0 +1,46 @@
+---
+- name: Install WireGuard kernel module dependencies
+  ansible.builtin.apt:
+    name:
+      - linux-headers-{{ ansible_kernel }}
+      - wireguard-tools
+    state: latest
+
+- name: Create WireGuard directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0700"
+    owner: drunner
+    group: drunner
+  loop:
+    - /opt/wireguard
+    - /opt/wireguard/config
+
+- name: Configure iptables rules for WireGuard port
+  ansible.builtin.iptables:
+    chain: "{{ item.chain }}"
+    protocol: udp
+    source: "{{ item.source | default(omit) }}"
+    destination_port: "{{ item.dport }}"
+    jump: "{{ item.jump }}"
+    action: "{{ item.action | default(omit) }}"
+  loop:
+    - { chain: "DOCKER-USER", dport: "{{ wg_port }}", jump: "DROP", action: "insert" }
+    - { chain: "DOCKER-USER", dport: "{{ wg_port }}", source: "{{ allowed_network }}", jump: "ACCEPT", action: "insert" }
+  notify: Save iptables rules
+
+- name: Copy WireGuard docker-compose file
+  ansible.builtin.template:
+    src: wireguard.yaml.j2
+    dest: /opt/wireguard/wireguard.yaml
+    mode: "0644"
+    owner: drunner
+    group: drunner
+
+- name: Start WireGuard service
+  become_user: drunner
+  community.docker.docker_compose_v2:
+    project_src: /opt/wireguard
+    files:
+      - wireguard.yaml

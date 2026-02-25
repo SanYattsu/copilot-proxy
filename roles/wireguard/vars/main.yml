@@ -1,0 +1,11 @@
+---
+wg_server_url: "{{ ansible_host }}"
+wg_port: 51820
+wg_peers: "keenetic"
+wg_peer_dns: "{{ ansible_host }}"
+wg_internal_subnet: "10.13.13.0/24"
+wg_allowed_ips: "0.0.0.0/0"
+wg_persistent_keepalive: 25
+wg_puid: 1000
+wg_pgid: 1000
+wg_tz: "UTC"

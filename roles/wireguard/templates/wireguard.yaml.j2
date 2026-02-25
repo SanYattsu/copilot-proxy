@@ -1,0 +1,48 @@
+# docker exec wireguard cat /config/peer_{{ wg_peers }}/peer_{{ wg_peers }}.conf
+name: wireguard
+
+services:
+  wireguard:
+    image: lscr.io/linuxserver/wireguard:latest
+    container_name: wireguard
+    restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - PUID={{ wg_puid }}
+      - PGID={{ wg_pgid }}
+      - TZ={{ wg_tz }}
+      - SERVERURL={{ wg_server_url }}
+      - SERVERPORT={{ wg_port }}
+      - PEERS={{ wg_peers }}
+      - PEERDNS={{ wg_peer_dns }}
+      - INTERNAL_SUBNET={{ wg_internal_subnet }}
+      - ALLOWEDIPS={{ wg_allowed_ips }}
+      - PERSISTENTKEEPALIVE={{ wg_persistent_keepalive }}
+      - LOG_CONFS=false
+    volumes:
+      - /opt/wireguard/config:/config
+      - /lib/modules:/lib/modules:ro
+    ports:
+      - "{{ wg_port }}:{{ wg_port }}/udp"
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv4.ip_forward=1
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "wg", "show"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - wireguard-network
+
+networks:
+  wireguard-network:

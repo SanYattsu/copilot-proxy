@@ -1,0 +1,75 @@
+---
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    upgrade: "safe"
+    state: "latest"
+
+- name: Install required packages
+  ansible.builtin.apt:
+    name:
+      - iptables-persistent
+      - ca-certificates
+      - curl
+      - acl
+    state: latest
+
+- name: Create Docker GPG key directory
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+
+- name: Download Docker GPG key
+  ansible.builtin.get_url:
+    url: "{{ docker_apt_key_url }}"
+    dest: /etc/apt/keyrings/docker.asc
+    mode: "0644"
+
+- name: Add Docker repository
+  ansible.builtin.apt_repository:
+    repo: "{{ docker_apt_repository }}"
+    state: present
+    filename: docker.list
+    update_cache: yes
+
+- name: Install Docker packages
+  ansible.builtin.apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: latest
+
+- name: Configure SSH
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop:
+    - { regexp: "^#?LoginGraceTime.*", line: "LoginGraceTime 0" }
+    - { regexp: "^#?PasswordAuthentication.*", line: "PasswordAuthentication no" }
+  notify:
+    - Restart SSH
+    - Reboot a machine
+
+- name: Configure SSH iptables rules
+  ansible.builtin.iptables:
+    chain: "{{ item.chain }}"
+    protocol: "{{ item.protocol }}"
+    source: "{{ item.source | default(omit) }}"
+    destination_port: "{{ item.dport }}"
+    jump: "{{ item.jump }}"
+  loop:
+    - { chain: "INPUT", protocol: "tcp", dport: "22", source: "{{ allowed_network }}", jump: "ACCEPT" }
+    - { chain: "INPUT", protocol: "tcp", dport: "22", jump: "DROP" }
+  notify: Save iptables rules
+
+- name: Create drunner service user
+  ansible.builtin.user:
+    name: drunner
+    create_home: false
+    shell: /sbin/nologin
+    groups: [docker]

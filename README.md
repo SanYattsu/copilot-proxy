@@ -90,16 +90,12 @@ curl --socks5-hostname ${ansible_host}$:${socks_external_port} -U ${PROXY_LOGIN}
 }
 ```
 
-## Debug
+## Wireguard
 
-Code below helps debugging 3proxy and show [error code](https://kraken-proxy.ru/en/page/kodyi-oshibok-v-logah-3proxy) for failed connection attempts.
+To get config:
 
 ```bash
-docker logs proxy-3proxy-1 --since 1800s | grep -v "00000" \
-   | jq -c '(.time_unix | tonumber | strftime("%H:%M:%S")) + " - " + .request.hostname + " - " + .error.code'
-
-docker logs proxy-3proxy-1 --since 1800s | grep -v "00000" \
-   | jq -c '.request.hostname + " - " + .error.code' | sort -u
+docker exec wireguard cat /config/peer_keenetic/peer_keenetic.conf
 ```
 
 ## 3x-UI Panel
@@ -147,3 +143,20 @@ Default credentials: `admin` / `admin`
 |------|----------|---------|
 | `8443` | TCP | 3x-UI web panel |
 | `9443` | TCP | Xray inbound (configurable in panel) |
+
+## Debug
+
+```bash
+ansible-playbook playbook.yml --syntax-check 2>&1
+ansible-playbook playbook.yml --check --diff 2>&1
+
+# See status
+docker ps --format 'table {{.ID}}\t{{.Names}}\t{{.Status}}'
+
+# Code below helps debugging 3proxy and show [error code](https://kraken-proxy.ru/en/page/kodyi-oshibok-v-logah-3proxy) for failed connection attempts.
+docker logs proxy-3proxy-1 --since 1800s | grep -v "00000" \
+   | jq -c '(.time_unix | tonumber | strftime("%H:%M:%S")) + " - " + .request.hostname + " - " + .error.code'
+
+docker logs proxy-3proxy-1 --since 1800s | grep -v "00000" \
+   | jq -c '.request.hostname + " - " + .error.code' | sort -u
+```

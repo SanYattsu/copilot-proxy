@@ -1,16 +1,13 @@
 ---
-- name: Update apt cache
-  ansible.builtin.apt:
-    update_cache: true
-    upgrade: "full"
-    state: "latest"
-
 - name: Create panel directories
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     mode: "0755"
+    owner: drunner
+    group: drunner
   loop:
+    - /opt/panel
     - "{{ panel_db_dir }}"
     - "{{ panel_certs_dir }}"
 
@@ -83,8 +80,11 @@
     src: panel.yaml.j2
     dest: /opt/panel/panel.yaml
     mode: "0644"
+    owner: drunner
+    group: drunner
 
 - name: Start panel service
+  become_user: drunner
   community.docker.docker_compose_v2:
     project_src: /opt/panel
     files:

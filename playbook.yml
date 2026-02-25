@@ -3,5 +3,7 @@
   hosts: "proxy"
   become: True
   roles:
+    - common
     - proxy
     - panel
+    # - wireguard

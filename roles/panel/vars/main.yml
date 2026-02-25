@@ -1,6 +1,4 @@
 ---
-allowed_network: "79.98.8.0/21"
-
 # Panel configuration
 panel_db_dir: /opt/panel/db
 panel_certs_dir: /opt/panel/certs
