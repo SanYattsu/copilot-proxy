@@ -20,6 +20,7 @@ services:
     cap_add:
       - NET_BIND_SERVICE
       - NET_ADMIN
+      - CAP_DAC_OVERRIDE
     read_only: false
     ports:
       - {{ panel_http_port }}:2053

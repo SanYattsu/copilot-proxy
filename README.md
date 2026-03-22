@@ -103,10 +103,12 @@ docker exec wireguard cat /config/peer_keenetic/peer_keenetic.conf
 After deployment the panel is available at:
 
 ```text
-https://<ansible_host>:8443/
+http://<ansible_host>:8443/
 ```
 
 Default credentials: `admin` / `admin`
+
+> After we apply certs `http` will be changed to `https`.
 
 ### Post-deploy configuration
 
