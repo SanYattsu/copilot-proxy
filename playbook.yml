@@ -6,4 +6,5 @@
     - common
     - proxy
     - panel
+    - mtproto
     # - wireguard

@@ -1,0 +1,67 @@
+---
+- name: Create MTProto directory
+  ansible.builtin.file:
+    path: "{{ mtproto_dir }}"
+    state: directory
+    mode: "0755"
+    owner: drunner
+    group: drunner
+
+- name: Generate base MTProto secret
+  ansible.builtin.shell: >-
+    openssl rand -hex {{ mtproto_secret_bytes }} > {{ mtproto_base_secret_file }}
+  args:
+    creates: "{{ mtproto_base_secret_file }}"
+  no_log: true
+
+- name: Read base MTProto secret
+  ansible.builtin.slurp:
+    src: "{{ mtproto_base_secret_file }}"
+  register: mtproto_base_secret_raw
+
+- name: Build Fake-TLS secret
+  ansible.builtin.shell: >-
+    printf 'ee%s%s'
+    '{{ mtproto_base_secret_raw.content | b64decode | trim }}'
+    "$(printf '%s' '{{ mtproto_fake_tls_domain }}' | od -An -tx1 -v | tr -d ' \012')"
+  register: mtproto_faketls_secret
+  changed_when: false
+  no_log: true
+
+- name: Write MTProto env file
+  ansible.builtin.copy:
+    dest: "{{ mtproto_env_file }}"
+    mode: "0600"
+    owner: drunner
+    group: drunner
+    content: |
+      MTPROTO_SECRET={{ mtproto_faketls_secret.stdout }}
+  no_log: true
+
+- name: Configure iptables rules for MTProto port
+  ansible.builtin.iptables:
+    chain: "{{ item.chain }}"
+    protocol: tcp
+    source: "{{ item.source | default(omit) }}"
+    destination_port: "{{ item.dport }}"
+    jump: "{{ item.jump }}"
+    action: "{{ item.action | default(omit) }}"
+  loop:
+    - { chain: "DOCKER-USER", dport: "{{ mtproto_external_port }}", source: "{{ allowed_network }}", jump: "ACCEPT", action: "insert" }
+  notify: Save iptables rules
+
+- name: Copy MTProto docker-compose file
+  ansible.builtin.template:
+    src: mtproto.yaml.j2
+    dest: "{{ mtproto_compose_file }}"
+    mode: "0644"
+    owner: drunner
+    group: drunner
+
+- name: Start MTProto service
+  become_user: drunner
+  community.docker.docker_compose_v2:
+    project_src: "{{ mtproto_dir }}"
+    files:
+      - "{{ mtproto_compose_file | basename }}"
+    state: present

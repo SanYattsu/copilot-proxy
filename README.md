@@ -35,6 +35,7 @@ This Ansible playbook automates the deployment of a proxy server using **3proxy*
 3. Change VPS params in `inventory/main.yml`.
 4. Customize proxy variables in `roles/proxy/vars/main.yml` if needed.
 5. Customize panel variables in `roles/panel/vars/main.yml` if needed.
+6. Customize MTProto variables in `roles/mtproto/vars/main.yml` if needed.
 
    > Don't forget to change **allowed_network** or you will be locked out of the VM.
 
@@ -97,6 +98,19 @@ To get config:
 ```bash
 docker exec wireguard cat /config/peer_keenetic/peer_keenetic.conf
 ```
+
+## MTProto Fake-TLS Secret
+
+Enable role `mtproto` in `playbook.yml` to generate a dedicated MTProto secret for Fake-TLS obfuscation.
+
+Generated files on the server:
+
+```text
+/opt/mtproto/base_secret.hex
+/opt/mtproto/faketls.secret
+```
+
+Default fake domain is `www.***.com` and can be changed in `roles/mtproto/vars/main.yml`.
 
 ## 3x-UI Panel
 

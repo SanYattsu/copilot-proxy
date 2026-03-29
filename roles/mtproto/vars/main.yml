@@ -1,0 +1,15 @@
+---
+# MTProto Fake-TLS secret settings
+mtproto_dir: /opt/mtproto
+mtproto_base_secret_file: /opt/mtproto/base_secret.hex
+mtproto_fake_tls_domain: "www.cloudflare.com"
+mtproto_secret_bytes: 16
+
+# MTProto docker-compose configuration
+mtproto_compose_file: /opt/mtproto/mtproto.yaml
+mtproto_env_file: /opt/mtproto/.env
+mtproto_image: "nineseconds/mtg:2"
+mtproto_external_port: 443
+mtproto_internal_port: 3128
+mtproto_resolver: "1.1.1.1"
+mtproto_ip_preference: "prefer-ipv4"

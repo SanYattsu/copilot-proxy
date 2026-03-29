@@ -1,0 +1,24 @@
+name: mtproto
+
+services:
+  mtproto:
+    image: {{ mtproto_image }}
+    container_name: mtproto
+    restart: unless-stopped
+    env_file:
+      - .env
+    command:
+      - simple-run
+      - -n
+      - {{ mtproto_resolver }}
+      - -i
+      - {{ mtproto_ip_preference }}
+      - 0.0.0.0:{{ mtproto_internal_port }}
+      - ${MTPROTO_SECRET}
+    ports:
+      - "{{ mtproto_external_port }}:{{ mtproto_internal_port }}/tcp"
+    networks:
+      - mtproto-network
+
+networks:
+  mtproto-network:
