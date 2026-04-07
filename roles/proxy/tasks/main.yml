@@ -42,7 +42,8 @@
   become_user: drunner
   community.docker.docker_compose_v2:
     project_src: /opt/proxy
+    pull: always
+    recreate: always 
     files:
       - proxy.yaml
     state: present
-

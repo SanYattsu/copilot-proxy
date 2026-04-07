@@ -37,14 +37,12 @@ This Ansible playbook automates the deployment of a proxy server using **3proxy*
 5. Customize panel variables in `roles/panel/vars/main.yml` if needed.
 6. Customize MTProto variables in `roles/mtproto/vars/main.yml` if needed.
 
-   > Don't forget to change **allowed_network** or you will be locked out of the VM.
-
 ## Deployment
 
 Run the playbook:
 
    ```bash
-   ansible-playbook playbook.yml --extra-vars "vps_ip=1.2.3.4"
+   ansible-playbook playbook.yml --extra-vars "vps_ip=1.2.3.4" --extra-vars "allowed_network=1.2.3.0/21"  
    ```
 
 ## Accessing the Proxy

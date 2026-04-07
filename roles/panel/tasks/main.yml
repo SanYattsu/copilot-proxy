@@ -87,5 +87,8 @@
   become_user: drunner
   community.docker.docker_compose_v2:
     project_src: /opt/panel
+    pull: always
+    recreate: always 
     files:
       - panel.yaml
+    state: present
