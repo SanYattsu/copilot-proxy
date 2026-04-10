@@ -3,3 +3,41 @@ docker_apt_key_url: "https://download.docker.com/linux/ubuntu/gpg"
 docker_apt_repository: >-
   deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc]
   https://download.docker.com/linux/ubuntu {{ ansible_facts['distribution_release'] }} stable
+
+docker_prep_log_driver: "json-file"
+docker_prep_log_max_size: "100m"
+docker_prep_log_max_file: "3"
+docker_prep_storage_driver: "overlay2"
+docker_prep_data_root: "/var/lib/docker"
+
+sysctl_settings:
+  - name: net.ipv4.ip_forward
+    value: 1
+
+  - name: net.netfilter.nf_conntrack_max
+    value: 262144
+  - name: net.netfilter.nf_conntrack_buckets
+    value: 65536
+
+  - name: vm.max_map_count
+    value: 262144
+  - name: fs.file-max
+    value: 1048576
+  - name: kernel.pid_max
+    value: 4194304
+  - name: kernel.softlockup_panic
+    value: 1
+  - name: kernel.hardlockup_panic
+    value: 1
+
+  - name: vm.overcommit_memory
+    value: 1
+  - name: vm.panic_on_oom
+    value: 0
+
+  - name: kernel.panic_on_oops
+    value: 1
+  - name: vm.oom_kill_allocating_task
+    value: 0
+  - name: vm.oom_dump_tasks
+    value: 1

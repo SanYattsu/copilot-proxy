@@ -1,0 +1,9 @@
+{
+  "log-driver": "{{ docker_prep_log_driver }}",
+  "log-opts": {
+    "max-size": "{{ docker_prep_log_max_size }}",
+    "max-file": "{{ docker_prep_log_max_file }}"
+  },
+  "storage-driver": "{{ docker_prep_storage_driver }}",
+  "data-root": "{{ docker_prep_data_root }}"
+}

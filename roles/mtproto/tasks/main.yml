@@ -47,7 +47,8 @@
     jump: "{{ item.jump }}"
     action: "{{ item.action | default(omit) }}"
   loop:
-    - { chain: "DOCKER-USER", dport: "{{ mtproto_external_port }}", source: "{{ allowed_network }}", jump: "ACCEPT", action: "insert" }
+    # - { chain: "DOCKER-USER", dport: "{{ mtproto_internal_port }}", jump: "DROP", action: "insert" }
+    - { chain: "DOCKER-USER", dport: "{{ mtproto_internal_port }}", source: "{{ allowed_network }}", jump: "ACCEPT", action: "insert" }
   notify: Save iptables rules
 
 - name: Copy MTProto docker-compose file

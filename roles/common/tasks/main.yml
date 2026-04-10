@@ -43,6 +43,25 @@
       - docker-compose-plugin
     state: latest
 
+- name: Configure Docker daemon
+  ansible.builtin.template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    mode: "0644"
+    owner: root
+    group: root
+  notify: Restart docker
+
+- name: Apply sysctl settings
+  ansible.posix.sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+    sysctl_file: /etc/sysctl.conf
+    reload: true
+  loop: "{{ sysctl_settings }}"
+  tags: sysctl
+
 - name: Configure SSH
   ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
@@ -53,7 +72,6 @@
     - { regexp: "^#?PasswordAuthentication.*", line: "PasswordAuthentication no" }
   notify:
     - Restart SSH
-    - Reboot a machine
 
 - name: Configure SSH iptables rules
   ansible.builtin.iptables:
@@ -73,3 +91,5 @@
     create_home: false
     shell: /sbin/nologin
     groups: [docker]
+  # notify:
+  #   - Reboot a machine

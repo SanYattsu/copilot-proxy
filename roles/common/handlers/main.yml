@@ -7,5 +7,11 @@
 - name: Save iptables rules
   ansible.builtin.command: netfilter-persistent save
 
+- name: Restart docker
+  ansible.builtin.service:
+    name: docker
+    state: restarted
+
 - name: Reboot a machine
   ansible.builtin.reboot:
+  when: kernel_params_changed | default(false)
