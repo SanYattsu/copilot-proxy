@@ -11,9 +11,8 @@ services:
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
+      - CAP_DAC_OVERRIDE
     environment:
-      - PUID={{ wg_puid }}
-      - PGID={{ wg_pgid }}
       - TZ={{ wg_tz }}
       - SERVERURL={{ wg_server_url }}
       - SERVERPORT={{ wg_port }}
@@ -31,11 +30,6 @@ services:
     sysctls:
       - net.ipv4.conf.all.src_valid_mark=1
       - net.ipv4.ip_forward=1
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
     healthcheck:
       test: ["CMD", "wg", "show"]
       interval: 30s

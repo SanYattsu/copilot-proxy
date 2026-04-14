@@ -1,8 +1,4 @@
 ---
-# 3proxy configuration
-socks_external_port: 443
-
-# Docker compose configuration
 image_tag: "1"
 proxy_port: 3128
 socks_port: 1080

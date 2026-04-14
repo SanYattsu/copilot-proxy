@@ -2,7 +2,7 @@
 - name: Install WireGuard kernel module dependencies
   ansible.builtin.apt:
     name:
-      - linux-headers-{{ ansible_kernel }}
+      - linux-headers-{{ ansible_facts['kernel'] }}
       - wireguard-tools
     state: latest
 

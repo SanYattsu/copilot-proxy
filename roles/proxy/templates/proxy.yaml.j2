@@ -13,8 +13,8 @@ services:
       PRIMARY_RESOLVER: {{ primary_resolver }}
       SECONDARY_RESOLVER: {{ secondary_resolver }}
     ports:
-      - "{{ socks_external_port }}:{{ socks_port }}/tcp"
-      - "{{ socks_external_port }}:{{ socks_port }}/udp"
+      - "{{ socks_port }}:{{ socks_port }}/tcp"
+      - "{{ socks_port }}:{{ socks_port }}/udp"
     networks:
       tarampampam-network:
 

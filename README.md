@@ -47,10 +47,10 @@ Run the playbook:
 
 ## Accessing the Proxy
 
-After deployment, the proxy will be available on SOCKS5 port 443 (TCP/UDP). You can test it with curl:
+After deployment, the proxy will be available on SOCKS5 port 1080 (TCP/UDP). You can test it with curl:
 
 ```bash
-curl --socks5-hostname ${ansible_host}$:${socks_external_port} -U ${PROXY_LOGIN}:${PROXY_PASSWORD} check-host.net/ip
+curl --socks5-hostname ${ansible_host}$:${socks_port} -U ${PROXY_LOGIN}:${PROXY_PASSWORD} check-host.net/ip
 ```
 
 ## Add the proxy to Visual Studio Code
@@ -154,7 +154,7 @@ Default credentials: `admin` / `admin`
 ### Ports
 
 | Port | Protocol | Purpose |
-|------|----------|---------|
+| - | - | - |
 | `8443` | TCP | 3x-UI web panel |
 | `9443` | TCP | Xray inbound (configurable in panel) |
 
