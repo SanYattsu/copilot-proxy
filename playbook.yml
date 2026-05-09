@@ -3,8 +3,13 @@
   hosts: "proxy"
   become: True
   roles:
-    - common
-    # - proxy
-    # - panel
-    # - mtproto
-    # - wireguard
+    - role: common
+      tags: ['common']
+    - role: proxy
+      tags: ['proxy']
+    - role: mtproto
+      tags: ['proxy']
+    - role: panel
+      tags: ['vpn']
+    # - role: wireguard
+    #   tags: ['vpn']
