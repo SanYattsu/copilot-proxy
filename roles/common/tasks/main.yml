@@ -73,6 +73,16 @@
   notify:
     - Restart SSH
 
+- name: Enforce Password Disabling in Cloud-Init Drop-In
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config.d/50-cloud-init.conf
+    regexp: "^#?PasswordAuthentication.*"
+    line: "PasswordAuthentication no"
+    create: true
+    mode: '0644'
+  notify:
+    - Restart SSH
+
 - name: Configure SSH iptables rules
   ansible.builtin.iptables:
     chain: "{{ item.chain }}"
