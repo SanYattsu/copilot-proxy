@@ -19,6 +19,12 @@ This Ansible playbook automates the deployment of a proxy server using **3proxy*
 do-release-upgrade -f DistUpgradeViewNonInteractive
 apt update
 apt dist-upgrade -y
+
+# Check sshd - password login must be blocked
+sshd -T | grep -E "(passwordauthentication|permitrootlogin|kbdinteractiveauthentication)"
+# permitrootlogin without-password
+# passwordauthentication no
+# kbdinteractiveauthentication no
 ```
 
 ## Configuration
