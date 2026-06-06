@@ -13,6 +13,14 @@ This Ansible playbook automates the deployment of a proxy server using **3proxy*
    ansible-galaxy collection install -r requirements.yml
    ```
 
+> If old Ubuntu is used upgrade it first:
+
+```bash
+do-release-upgrade -f DistUpgradeViewNonInteractive
+apt update
+apt dist-upgrade -y
+```
+
 ## Configuration
 
 1. Create strong vault password to encrypt secrets:
@@ -109,10 +117,15 @@ Generated files on the server:
 
 ```text
 /opt/mtproto/base_secret.hex
-/opt/mtproto/faketls.secret
 ```
 
 Default fake domain is `www.***.com` and can be changed in `roles/mtproto/vars/main.yml`.
+
+To get MTPROTO_SECRET:
+
+```bash
+cat /opt/mtproto/.env
+```
 
 ## 3x-UI Panel
 
