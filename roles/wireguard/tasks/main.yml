@@ -28,6 +28,7 @@
   loop:
     - { chain: "DOCKER-USER", dport: "{{ wg_port }}", jump: "DROP", action: "insert" }
     - { chain: "DOCKER-USER", dport: "{{ wg_port }}", source: "{{ allowed_network }}", jump: "ACCEPT", action: "insert" }
+    - { chain: "DOCKER-USER", ctstate: "RELATED,ESTABLISHED", jump: "ACCEPT", action: "insert" }
   notify: Save iptables rules
 
 - name: Copy WireGuard docker-compose file
